@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-# from sqlalchemy import MetaData,create_engine
 
 from flask import Flask, jsonify, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
-# from flask_restful import reqparse, abort, Api, Resource
 from datetime import datetime
 
 app = Flask(__name__)

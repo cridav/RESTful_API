@@ -18,12 +18,14 @@
             </ul>
             <p>The history of changes and deletion is kept for all the notes</p>
             <hr>
-          <h2>How to execute:</h2>
+          <h2>How to execute (python 3.X):</h2>
           <h3>Download required files:</h3>
           <code>git clone https://github.com/cridav/RESTful_API.git</code>
           <br>
           <code>cd RESTful_API/</code>
           <br>
+          <code>pip install -r requirements.txt</code>
+          <hr>
           <h3>Setup the database:</h3>
           <code>python</code>
           <br>
