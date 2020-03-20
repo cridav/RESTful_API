@@ -36,29 +36,27 @@
           <h3>Run the project:</h3>
           <code>python restful_api.py</code>
           <h3>Example usages:</h3>
-          <p>POST</p>
+          <h4>POST</h4>
           <code>curl -X POST -d '{"title":"title_sample_1","content":"content_sample_1"}' http://127.0.0.1:5000/notes</code>
-          <be>
-          <p>GET all notes</p>
+          <hr>
+          <h4>GET all notes</h4>
           <code>curl -X GET http://127.0.0.1:5000/notes</code>
-          <br>
-          <p>GET by ID</p>
-          <p>for instance, ID=1:</p>
+          <hr>
+          <h4>GET by ID <small>for instance, ID=1:</small></h4>          
           <code>curl -X GET http://127.0.0.1:5000/notes/1</code>
+          <hr>
+          <h4>UPDATE by ID</h4>
+          <small>The entry should be in JSON format, and the ID must be specified; modifying the first entry (ID=1):</small>
           <br>
-          <p>UPDATE by ID</p>
-          <p>The entry should be in JSON format, and the ID must be specified; modifying the first entry (ID=1):</p>
           <code>curl -X PUT -d '{"title":"title_sample_1_modified","content":"content_sample_1_modified"}' http://127.0.0.1:5000/notes/1</code>
-          <br>
-          <p>DELETE by ID</p>
-          <p>Deleting note with ID=1</p>
+          <hr>
+          <h4>DELETE by ID <small>deleting note with ID=1</small></h4>
           <code>curl -X DELETE http://127.0.0.1:5000/notes/1</code>
-          <br>
-          <p>GET all records</p>
+          <hr>
+          <h4>GET all records</h4>
           <code>curl -X GET  http://127.0.0.1:5000/record</code>
-          <br>
-          <p>GET all records by ID</p>
-          <p>For instance, all the records for the note with ID=1</p>
+          <hr>
+          <h4>GET all records by ID <small>for instance, all the records for the note with ID=1</small></h4>
           <code>curl -X GET  http://127.0.0.1:5000/record/1</code>
           <br>
           <p>
