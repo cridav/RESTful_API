@@ -157,6 +157,9 @@ def modify(note_id):
         in_note = request.get_json(force=True)
     except:
         return {"MESSAGE":"Bad Request"},400
+
+    h_notes = History.query.filter(History.ref_id == note_id).order_by(History.version.desc()).first() #this is a list
+    # return str(h_notes.version)
     if in_note:
         note = Notes.query.get(note_id)
         if note:
@@ -164,9 +167,9 @@ def modify(note_id):
             new_hist = History(  title=note.title,\
                             content=note.content,
                             created =note.created,
-                            modified =note.modified,
+                            modified =datetime.utcnow(),
                             ref_id = note.id,
-                            version =+ 1
+                            version = h_notes.version+1
                         )
             db.session.add(new_hist)
             for key,val in in_note.items():
