@@ -67,17 +67,14 @@ def notes():
         db.session.add(new_note)
         db.session.commit()
         # return None
-        return in_note
+        # return in_note
         # return str(type(in_note))
-        return jsonify({"THIS WAS":"CREATED"})
+        return jsonify({"MESSAGE":"OK"},str(200))
     else:
         all_notes = Notes.query.all() #this is a list
         output = []
         for note in all_notes:
             notes = {}
-            # notes['id'] = note.id
-            # notes[note.id]={}
-            # notes[note.id]['title'],notes[note.id]['content'],notes[note.id]['created'],notes[note.id]['modified']= (note.title,note.content,note.created,note.modified)
             notes['id'] = note.id
             notes['title'] = note.title
             notes['content'] = note.content
@@ -85,10 +82,7 @@ def notes():
             notes['modified']= note.modified
 
             output.append(notes)
-        # return str(type(all_notes))
-        # return str(all_notes[1].id)
-        # return {str(type(all_notes[1])):str(all_notes[1].id)}
-        return jsonify({'notes':output})
+        return (jsonify({'notes':output}),str(200))
 
 
 @app.route('/record', methods = ['GET'])
@@ -97,9 +91,6 @@ def record():
     output = []
     for note in all_notes:
         notes = {}
-        # notes['id'] = note.id
-        # notes[note.id]={}
-        # notes[note.id]['title'],notes[note.id]['content'],notes[note.id]['created'],notes[note.id]['modified']= (note.title,note.content,note.created,note.modified)
         notes['id'] = note.id
         notes['title'] = note.title
         notes['content'] = note.content
@@ -109,10 +100,7 @@ def record():
         notes['version'] = note.version
 
         output.append(notes)
-    # return str(type(all_notes))
-    # return str(all_notes[1].id)
-    # return {str(type(all_notes[1])):str(all_notes[1].id)}
-    return jsonify({'notes':output})
+    return jsonify({'notes':output},str(200))
 
 @app.route('/record/<int:note_id>', methods = ['GET'])
 def record_by_id(note_id):
@@ -120,9 +108,6 @@ def record_by_id(note_id):
     output = []
     for note in all_notes:
         notes = {}
-        # notes['id'] = note.id
-        # notes[note.id]={}
-        # notes[note.id]['title'],notes[note.id]['content'],notes[note.id]['created'],notes[note.id]['modified']= (note.title,note.content,note.created,note.modified)
         notes['id'] = note.id
         notes['title'] = note.title
         notes['content'] = note.content
@@ -132,10 +117,7 @@ def record_by_id(note_id):
         notes['version'] = note.version
 
         output.append(notes)
-    # return str(type(all_notes))
-    # return str(all_notes[1].id)
-    # return {str(type(all_notes[1])):str(all_notes[1].id)}
-    return jsonify({'notes':output})
+    return jsonify({'notes':output},str(200))
 
 @app.route('/notes/<int:note_id>', methods = ['GET'])
 def get_note(note_id):
@@ -148,7 +130,6 @@ def get_note(note_id):
                 'modified':note.modified,
         }
         return (out,200)
-    # return str(404)
     return ({"MESSAGE":"entry not found"},str(404))
 
 @app.route('/notes/<int:note_id>', methods = ['PUT'])
@@ -156,35 +137,32 @@ def modify(note_id):
     try:
         in_note = request.get_json(force=True)
     except:
-        return {"MESSAGE":"Bad Request"},400
+        return ({"MESSAGE":"Bad Request"},str(400))
 
     h_notes = History.query.filter(History.ref_id == note_id).order_by(History.version.desc()).first() #this is a list
-    # return str(h_notes.version)
+    # return(str(h_notes.version),str(type(h_notes)),str(type(h_notes.version)))
+    # return (str(type(h_notes)))
     if in_note:
         note = Notes.query.get(note_id)
         if note:
-
-            new_hist = History(  title=note.title,\
-                            content=note.content,
-                            created =note.created,
-                            modified =datetime.utcnow(),
-                            ref_id = note.id,
-                            version = h_notes.version+1
+            new_hist = History( title=note.title,\
+                                content=note.content,
+                                created =note.created,
+                                modified =datetime.utcnow(),
+                                ref_id = note.id,
+                                version = h_notes.version + 1 if h_notes else 1
                         )
             db.session.add(new_hist)
             for key,val in in_note.items():
                 setattr(note,key,val)
                 db.session.add(note)
                 db.session.commit()
-                return {"MESSAGE":"entry modified"},201
+            return ({"MESSAGE":"entry modified"},str(201))
         else:
-            return {"MESSAGE":"entry not found"},404
+            return ({"MESSAGE":"entry not found"},str(404))
 
     else:
-        return {"MESSAGE":"Bad Request"},400
-    # note = Notes.query.filter_by(public_id=public_id).first()
-    # if not note:
-    #     return jsonify({'Message':'Note not found'})
+        return ({"MESSAGE":"Bad Request"},str(400))
 
     
 
@@ -207,8 +185,8 @@ def delete(note_id):
         db.session.delete(note)
         db.session.commit()
     else:
-        return {"MESSAGE":"entry not found"},404
-    return {"MESSAGE":"data deleted"},204
+        return jsonify({"MESSAGE":"entry not found"},str(404))
+    return jsonify({"MESSAGE":"entry deleted"},str(204))
 
 
 
