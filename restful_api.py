@@ -3,12 +3,10 @@
 
 from flask import Flask, jsonify, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
-from flask_restful import reqparse, abort, Api, Resource
+# from flask_restful import reqparse, abort, Api, Resource
 from datetime import datetime
-from flask_marshmallow import Marshmallow 
 
 app = Flask(__name__)
-ma = Marshmallow(app)
 # api = Api(app)
 
 # now define a DATABASE
@@ -49,15 +47,6 @@ class History(db.Model):
     modified = db.Column(db.DateTime, nullable = False, default = datetime.utcnow())
     ref_id = db.Column(db.Integer,nullable = False)
     version = db.Column(db.Integer,nullable = False, default = 0)
-
-
-
-class ProductSchema(ma.Schema):
-  class Meta:
-      fields = ('id','title','content','created','modified')
-# products_schema = ProductSchema(many=True, strict=True)
-products_schema = ProductSchema()
-
 
 @app.route('/notes', methods = ['GET','POST'])
 def notes():
@@ -125,11 +114,49 @@ def record():
     # return {str(type(all_notes[1])):str(all_notes[1].id)}
     return jsonify({'notes':output})
 
+@app.route('/record/<int:note_id>', methods = ['GET'])
+def record_by_id(note_id):
+    all_notes = History.query.filter(History.ref_id == note_id).all() #this is a list
+    output = []
+    for note in all_notes:
+        notes = {}
+        # notes['id'] = note.id
+        # notes[note.id]={}
+        # notes[note.id]['title'],notes[note.id]['content'],notes[note.id]['created'],notes[note.id]['modified']= (note.title,note.content,note.created,note.modified)
+        notes['id'] = note.id
+        notes['title'] = note.title
+        notes['content'] = note.content
+        notes['created'] = note.created
+        notes['modified']= note.modified
+        notes['ref_id'] =  note.ref_id
+        notes['version'] = note.version
 
+        output.append(notes)
+    # return str(type(all_notes))
+    # return str(all_notes[1].id)
+    # return {str(type(all_notes[1])):str(all_notes[1].id)}
+    return jsonify({'notes':output})
+
+@app.route('/notes/<int:note_id>', methods = ['GET'])
+def get_note(note_id):
+    note = Notes.query.get(note_id)
+    if note:
+        out = { 'id':note.id,
+                'title':note.title,
+                'content':note.content,
+                'created':note.created,
+                'modified':note.modified,
+        }
+        return (out,200)
+    # return str(404)
+    return ({"MESSAGE":"entry not found"},str(404))
 
 @app.route('/notes/<int:note_id>', methods = ['PUT'])
 def modify(note_id):
-    in_note = request.get_json(force=True)
+    try:
+        in_note = request.get_json(force=True)
+    except:
+        return {"MESSAGE":"Bad Request"},400
     if in_note:
         note = Notes.query.get(note_id)
         if note:
@@ -142,8 +169,6 @@ def modify(note_id):
                             version =+ 1
                         )
             db.session.add(new_hist)
-
-
             for key,val in in_note.items():
                 setattr(note,key,val)
                 db.session.add(note)
