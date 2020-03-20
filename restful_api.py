@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# from sqlalchemy import MetaData,create_engine
 
 from flask import Flask, jsonify, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
@@ -11,11 +11,16 @@ app = Flask(__name__)
 
 # now define a DATABASE
 
-# /// means relative path, //// means absolute path
-# this is where the database is going to be and its name (posts)
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///notes.db'
 app.config['SQLALCHEMY_BINDS']={'record':'sqlite:///record.db'}
+
+#in-memory
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+# app.config['SQLALCHEMY_BINDS']={'record':'sqlite:///:memory:'}
+
 #in-memory
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
 # app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///:memory:"
@@ -24,6 +29,9 @@ app.config['SQLALCHEMY_BINDS']={'record':'sqlite:///record.db'}
 # db = SQLAlchemy(app).create_engine('sqlite://','SQLALCHEMY_ENGINE_OPTIONS')
 db = SQLAlchemy(app)
 db.create_engine('sqlite://',{})
+
+# db = SQLAlchemy(app=app, engine_options=create_engine('sqlite://'))
+# db.create_all()
 
 class Notes(db.Model):
     # unique keys
@@ -169,7 +177,7 @@ def modify(note_id):
 
 @app.route('/notes/<int:note_id>', methods = ['DELETE'])
 def delete(note_id):
-
+    h_notes = History.query.filter(History.ref_id == note_id).order_by(History.version.desc()).first()
     note = Notes.query.get(note_id)
     if note:
 
@@ -178,7 +186,7 @@ def delete(note_id):
                             created =note.created,
                             modified =note.modified,
                             ref_id = note.id,
-                            version =+ 1
+                            version = h_notes.version + 1 if h_notes else 1
                         )
         db.session.add(new_hist)
 
